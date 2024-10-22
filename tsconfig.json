@@ -1,14 +1,17 @@
 {
-    "compilerOptions": {
-      "module": "ESNext",  // モジュールシステムとしてESモジュールを使用
-      "target": "ESNext",  // 出力されるJavaScriptのバージョン
-      "moduleResolution": "Bundler",
-      "outDir": "./dist",  // コンパイル後のファイルの出力先
-      "esModuleInterop": true,  // CommonJSモジュールとの互換性
-      "strict": true,  // 厳密な型チェック
-      "skipLibCheck": true  // 外部モジュールの型チェックをスキップ
-    },
-    "include": ["src/**/*.ts"],  // コンパイル対象のファイル
-    "exclude": ["node_modules"]  // 除外するファイル
-  }
-  
+  "compilerOptions": {
+    "module": "ESNext", // モジュールシステムとしてESモジュールを使用
+    "target": "ESNext", // 出力されるJavaScriptのバージョン
+    "moduleResolution": "Bundler",
+    "outDir": "./dist", // コンパイル後のファイルの出力先
+    "esModuleInterop": true, // CommonJSモジュールとの互換性
+    "strict": true, // 厳密な型チェック
+    "skipLibCheck": true, // 外部モジュールの型チェックをスキップ
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src/**/*.ts"], // コンパイル対象のファイル
+  "exclude": ["node_modules"] // 除外するファイル
+}
