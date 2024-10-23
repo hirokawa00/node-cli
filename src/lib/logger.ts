@@ -11,13 +11,13 @@ const sessionUUID = uuidv4();
 const colorizeLog = (level: string, message: string) => {
   switch (level) {
     case 'info':
-      return pico.green(message); // 情報ログは青色
+      return pico.green(message); // 情報ログは緑色
     case 'warn':
       return pico.yellow(message); // 警告ログは黄色
     case 'error':
       return pico.bgRed(pico.bold(pico.whiteBright(message))); // エラーログは赤色
     case 'debug':
-      return pico.gray(pico.italic(message)); // デバッグログは緑色
+      return pico.gray(pico.italic(message)); // デバッグログは灰色
     default:
       return message; // デフォルトはそのまま
   }
@@ -31,8 +31,12 @@ const getPaddedLevel = (level: string) => {
 // winston カスタムフォーマット
 const customFormat = winston.format.printf(({ level, message, timestamp }) => {
   const paddedLevel = getPaddedLevel(level); // ログレベルのパディングを取得
-  const logMessage = `${timestamp} [${sessionUUID}] [${paddedLevel}]: ${message}`;
-  return colorizeLog(level, logMessage); // ログ全体に色を適用
+
+  // メッセージがオブジェクトであればJSONにシリアライズ
+  //const logMessage = JSON.stringify(message);
+  const formattedMessage = `${timestamp} [${sessionUUID}] [${paddedLevel}]: ${message}`;
+
+  return colorizeLog(level, formattedMessage); // ログ全体に色を適用
 });
 
 // カラフルなログフォーマット
@@ -55,18 +59,21 @@ class Logger {
   }
 
   // インフォメッセージ用
-  info(message: string): void {
-    this.logger.info(message);
+  info(message: string, params?: Record<string, unknown>): void {
+    const logContent = { message, params }; // メッセージとパラメータを1つのオブジェクトにする
+    this.logger.info(logContent); // ログに出力
   }
 
   // 警告メッセージ用
-  warn(message: string): void {
-    this.logger.warn(message);
+  warn(message: string, params?: Record<string, unknown>): void {
+    const logContent = { message, params };
+    this.logger.warn(logContent);
   }
 
   // エラーメッセージ用
-  error(message: string): void {
-    this.logger.error(message);
+  error(message: string, params?: Record<string, unknown>): void {
+    const logContent = { message, params };
+    this.logger.error(logContent);
   }
 
   // 他の外部インスタンスと置き換えるためのメソッド（テスト用）

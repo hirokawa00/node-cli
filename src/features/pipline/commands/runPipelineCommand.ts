@@ -1,5 +1,7 @@
 //import { executePipelineService } from '@/features/pipline/services/executePipelineService';
 import { logger } from '@/lib/logger';
+import { confirmExecution } from '@/lib/prompts';
+import { getErrorMessage, status } from '@/lib/utils';
 import type { Command } from 'commander';
 
 /**
@@ -8,21 +10,22 @@ import type { Command } from 'commander';
  */
 export function runPipelineCommand(program: Command) {
   program
-    .command('runPipeline')
+    .command('run-pipeline')
     .description('Start the application')
-    .option('--no-dry-run', '通常モードでバッチを実行')
-    .option('-f, --force', '強制実行オプション')
-    .option('-l, --log', 'ログ出力オプション')
+    .option('-n, --no-dry-run', '通常モードでバッチを実行')
     .action(async (options) => {
       try {
-        logger.info('処理開始');
-        logger.warn('処理開始');
-        logger.error('処理開始');
+        const result = await confirmExecution();
+        if (!result.confirmExecution) {
+          logger.info(`🚫 処理がキャンセルされました。exit code: ${status.canceld}`);
+          process.exit(status.canceld);
+        }
+
+        logger.info('🚀 パイプラインの実行を開始します!!');
         // await executePipelineService();
       } catch (error: unknown) {
-        const message = (error as Error)?.message || 'Unknown error';
-        logger.error(`Failed to execute pipeline: ${message}`);
-        process.exit(1);
+        logger.error(`パイプラインの実行に失敗しました: ${getErrorMessage(error)}`);
+        process.exit(status.abend);
       }
     });
 }
