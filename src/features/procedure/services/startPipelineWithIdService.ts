@@ -1,4 +1,4 @@
-import { ProcedureRepository } from '@/features/pipline/repositorys/procedureRepository';
+import { ProcedureRepository } from '@/features/procedure/repositorys/procedureRepository';
 import { env } from '@/lib/env';
 import { logger } from '@/lib/logger';
 import { getErrorMessage } from '@/lib/utils';
@@ -24,17 +24,33 @@ export class ProcedureService {
   }
 
   /**
+   * 指定されたIDに基づいて環境変数の値を取得します。
+   * @summary 環境変数が見つからない場合、エラーをスローします。
+   * @param id - .envファイル内での環境変数のキー（識別子）
+   * @returns 指定された環境変数の値を文字列として返します
+   * @throws 環境変数が存在しない、または値が設定されていない場合にエラーをスローします
+   */
+  private getEnvValueById(id: string): string {
+    const envValue = process.env[id];
+    if (!envValue) {
+      throw new Error(`Environment variable not found for ID: ${id}`);
+    }
+    return envValue;
+  }
+
+  /**
    * DryRunモードでストアドプロシージャを実行。
-   *
-   * @param id 実行対象のパイプラインID（将来の拡張性のために保持）
+   * @param id 実行対象のパイプラインID
    * @param isDryRun DryRunモードかどうかのフラグ（現時点では未使用）
    */
-  async startProcedureDryRun(id: string, isDryRun: boolean): Promise<void> {
+  async startProcedureDryRun(id: string): Promise<void> {
+    // 渡されたIDを元に.envのキーを特定
+    const procedureName = this.getEnvValueById(id);
     try {
       // DryRunモードでストアドプロシージャを実行
       const dryRunResult = await this.procedureRepository.executeDryRunProcedure<ProcedureResult>(
-        'dry_run_execute_procedure',
-        { procedure_name: 'generate_procedure_result1' }, // 任意のパラメータを設定
+        'dry_run_execute_procedure', // Dry Run用のため変更不可
+        { procedure_name: procedureName }, // 任意のパラメータを設定
       );
       logger.info('Dry Run procedure execution result:', { dryRunResult });
 
@@ -49,15 +65,16 @@ export class ProcedureService {
 
   /**
    * LiveRunモードでストアドプロシージャを実行。
-   *
-   * @param id 実行対象のパイプラインID（将来の拡張性のために保持）
+   * @param id 実行対象のパイプラインID
    * @param isDryRun このフラグは現時点では未使用
    */
-  async startProcedureLiveRun(id: string, isDryRun: boolean): Promise<void> {
+  async startProcedureLiveRun(id: string): Promise<void> {
+    // 渡されたIDを元に.envのキーを特定
+    const procedureName = this.getEnvValueById(id);
     try {
       // LiveRunモードでストアドプロシージャを実行
       const liveRunResult = await this.procedureRepository.executeLiveRunProcedure<ProcedureResult>(
-        'live_run_execute_procedure', // 実行するプロシージャ名
+        procedureName, // 実行するプロシージャ名
       );
       logger.info(
         `Live Run procedure execution result:': ${JSON.stringify(liveRunResult, null, 2)}`,

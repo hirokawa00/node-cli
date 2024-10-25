@@ -1,11 +1,11 @@
 {
-  "name": "mdm-cli",
+  "name": "cli",
   "version": "1.0.0",
   "description": "テスト用のCLIアプリケーション",
   "type": "module",
   "scripts": {
-    "build": "ncc build ./src/cli.ts -m -a",
-    "start": "env-cmd -f .env.local node dist/index.js"
+    "build": "ncc build ./src/index.ts -m -a",
+    "start": "env-cmd -f .env.local node --no-warnings dist/index.js"
   },
   "dependencies": {
     "@azure/arm-datafactory": "17.0.0",
