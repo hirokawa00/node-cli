@@ -1,8 +1,13 @@
-//import { executePipelineService } from '@/features/pipline/services/executePipelineService';
+import { ProcedureService } from '@/features/pipline/services/startPipelineWithIdService';
 import { logger } from '@/lib/logger';
-import { confirmExecution } from '@/lib/prompts';
-import { getErrorMessage, status } from '@/lib/utils';
+import { confirmExecution, confirmExecutionMode } from '@/lib/prompts';
+import { cleanupAndExit, getErrorMessage, setupInterruptListener, status } from '@/lib/utils';
 import type { Command } from 'commander';
+
+type RunPipelineOptions = {
+  yes?: boolean; // 確認プロンプトをスキップ
+  run?: boolean; // LiveRunモード
+};
 
 /**
  *
@@ -10,22 +15,45 @@ import type { Command } from 'commander';
  */
 export function runPipelineCommand(program: Command) {
   program
-    .command('run-pipeline')
+    .command('run-pipeline <id>')
     .description('Start the application')
-    .option('-n, --no-dry-run', '通常モードでバッチを実行')
-    .action(async (options) => {
+    .option('-y, --yes', '確認プロンプトなしで即実行')
+    .option('-r, --run', 'LiveRunモードで実行')
+    .action(async (id: string, options: RunPipelineOptions) => {
+      // SIGINT (Ctrl+C) のリスナーを設定
+      setupInterruptListener(cleanupAndExit);
+
       try {
-        const result = await confirmExecution();
-        if (!result.confirmExecution) {
-          logger.info(`🚫 処理がキャンセルされました。exit code: ${status.canceld}`);
-          process.exit(status.canceld);
+        // 実行確認プロンプト
+        const shouldRun = await confirmExecution();
+        if (!shouldRun) {
+          if (shouldRun === undefined) {
+            logger.warn('🚧 強制終了が要求されました。');
+          }
+          cleanupAndExit();
         }
 
-        logger.info('🚀 パイプラインの実行を開始します!!');
-        // await executePipelineService();
+        // 実行モード確認プロンプト
+        const shouldRunMode = await confirmExecutionMode();
+        if (!shouldRunMode) {
+          if (shouldRunMode === undefined) {
+            logger.warn('🚧 強制終了が要求されました。');
+          }
+          cleanupAndExit();
+        }
+
+        logger.info(`🚀 パイプラインの実行モード: ${shouldRunMode} で開始します!!`);
+
+        const procedureService = new ProcedureService();
+
+        // パイプライン実行サービス
+        await procedureService.startProcedureDryRun(id, shouldRunMode === 'dry-run');
       } catch (error: unknown) {
         logger.error(`パイプラインの実行に失敗しました: ${getErrorMessage(error)}`);
         process.exit(status.abend);
+      } finally {
+        // SIGINTリスナーのクリーンアップ
+        process.off('SIGINT', cleanupAndExit);
       }
     });
 }

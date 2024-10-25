@@ -5,13 +5,12 @@ config();
 
 // 環境変数を型で定義
 interface EnvVariables {
-  APP_NAME: string;
-  DEFAULT_RETRIES: number;
+  SUPABASE_URL: string;
+  SUPABASE_KEY: string;
 }
 
 // 環境変数のバリデーション
 export const env: EnvVariables = {
-  APP_NAME: process.env.APP_NAME || 'UnknownApp',
-  DEFAULT_RETRIES: Number(process.env.DEFAULT_RETRIES) || 3
+  SUPABASE_URL: process.env.SUPABASE_URL || '',
+  SUPABASE_KEY: process.env.SUPABASE_KEY || '',
 };
-

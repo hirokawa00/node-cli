@@ -11,13 +11,13 @@ const sessionUUID = uuidv4();
 const colorizeLog = (level: string, message: string) => {
   switch (level) {
     case 'info':
-      return pico.green(message); // 情報ログは緑色
+      return pico.blueBright(message); // 情報ログは明るい青色
     case 'warn':
-      return pico.yellow(message); // 警告ログは黄色
+      return pico.yellowBright(message); // 警告ログは明るい黄色
     case 'error':
-      return pico.bgRed(pico.bold(pico.whiteBright(message))); // エラーログは赤色
+      return pico.redBright(pico.bold(message)); // エラーログは白文字の赤背景
     case 'debug':
-      return pico.gray(pico.italic(message)); // デバッグログは灰色
+      return pico.cyan(pico.italic(message)); // デバッグログはシアン色
     default:
       return message; // デフォルトはそのまま
   }
@@ -29,12 +29,12 @@ const getPaddedLevel = (level: string) => {
 };
 
 // winston カスタムフォーマット
-const customFormat = winston.format.printf(({ level, message, timestamp }) => {
+const customFormat = winston.format.printf(({ level, message, params, timestamp }) => {
   const paddedLevel = getPaddedLevel(level); // ログレベルのパディングを取得
+  const param = params ? pico.gray(JSON.stringify(params, null, 2)) : '';
 
   // メッセージがオブジェクトであればJSONにシリアライズ
-  //const logMessage = JSON.stringify(message);
-  const formattedMessage = `${timestamp} [${sessionUUID}] [${paddedLevel}]: ${message}`;
+  const formattedMessage = `${timestamp} [${sessionUUID}] [${paddedLevel}]: ${message} ${param}`;
 
   return colorizeLog(level, formattedMessage); // ログ全体に色を適用
 });
@@ -50,12 +50,18 @@ class Logger {
 
   constructor() {
     this.logger = createLogger({
-      level: 'info', // 必要に応じてログレベルを設定
+      level: 'debug', // 必要に応じてログレベルを設定
       format: colorizedFormat,
       transports: [
         new transports.Console(), // コンソールへログ出力
       ],
     });
+  }
+
+  // デバックメッセージ用
+  debug(message: string, params?: Record<string, unknown>): void {
+    const logContent = { message, params }; // メッセージとパラメータを1つのオブジェクトにする
+    this.logger.debug(logContent); // ログに出力
   }
 
   // インフォメッセージ用
