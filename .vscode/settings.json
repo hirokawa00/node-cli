@@ -5,5 +5,8 @@
     "source.organizeImports.biome": "always"
   },
   "plantuml.render": "PlantUMLServer",
-  "plantuml.server": "https://www.plantuml.com/plantuml"
+  "plantuml.server": "https://www.plantuml.com/plantuml",
+  "[markdown]": {
+    "editor.defaultFormatter": "darkriszty.markdown-table-prettify"
+  }
 }

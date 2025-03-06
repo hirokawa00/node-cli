@@ -3,7 +3,7 @@ CREATE TABLE employee (
     department_id INT, -- 部門ID
     first_name NVARCHAR(100), -- 名
     last_name NVARCHAR(100), -- 姓
-    start_date DATE, -- 入社日
+    start_date DATE,   -- カラム論理名: 入社日
     CONSTRAINT pk_employee PRIMARY KEY (employee_id, department_id)     -- テーブル論理名: 従業員情報
 );
 

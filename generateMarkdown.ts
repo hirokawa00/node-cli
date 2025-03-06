@@ -103,5 +103,33 @@ function generateMarkdown(ast: any, sql: string): string {
     markdown += `| ${colName} | ${dataType} | ${constraints.join(', ')} | ${columnLogicName} |\n`;
   });
 
+  // 複合プライマリキーの処理
+  if (
+    ast.create_definitions.some((def) => def.constraint && def.constraint_type === 'primary key')
+  ) {
+    markdown += '\n### 複合プライマリキー\n';
+    markdown += '| カラム名               | 制約       |\n';
+    markdown += '|-----------------------|-----------|\n';
+    ast.create_definitions
+      .filter((def) => def.constraint_type === 'primary key')
+      .forEach((pk) => {
+        const columns = pk.definition.map((col) => col.column).join(', ');
+        markdown += `| ${columns} | PRIMARY KEY |\n`;
+      });
+  }
+
+  // インデックスの処理
+  if (ast.create_definitions.some((def) => def.keyword === 'index')) {
+    markdown += '\n### インデックス\n';
+    markdown += '| インデックス名   | カラム名                | 制約    |\n';
+    markdown += '|------------------|------------------------|--------|\n';
+    ast.create_definitions
+      .filter((def) => def.keyword === 'index')
+      .forEach((index) => {
+        const indexColumns = index.index_columns.map((col) => col.column).join(', ');
+        markdown += `| ${index.index} | ${indexColumns} | ${index.unique ? 'UNIQUE' : ''} |\n`;
+      });
+  }
+
   return markdown;
 }
