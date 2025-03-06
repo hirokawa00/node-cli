@@ -57,6 +57,9 @@ importers:
       '@vercel/ncc':
         specifier: 0.38.2
         version: 0.38.2
+      node-sql-parser:
+        specifier: ^5.3.7
+        version: 5.3.7
       ts-node:
         specifier: 10.9.2
         version: 10.9.2(@types/node@22.7.6)(typescript@5.6.3)
@@ -275,6 +278,9 @@ packages:
   '@types/node@22.7.6':
     resolution: {integrity: sha512-/d7Rnj0/ExXDMcioS78/kf1lMzYk4BZV8MZGTBKzTGZ6/406ukkbYlIsZmMPhcR5KlkunDHQLrtAVmSq7r+mSw==}
 
+  '@types/pegjs@0.10.6':
+    resolution: {integrity: sha512-eLYXDbZWXh2uxf+w8sXS8d6KSoXTswfps6fvCUuVAGN8eRpfe7h9eSRydxiSJvo9Bf+GzifsDOr9TMQlmJdmkw==}
+
   '@types/phoenix@1.6.5':
     resolution: {integrity: sha512-xegpDuR+z0UqG9fwHqNoy3rI7JDlvaPh2TY47Fl80oq6g+hXT+c/LEuE43X48clZ6lOfANl5WrPur9fYO1RJ/w==}
 
@@ -335,6 +341,10 @@ packages:
 
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
+
+  big-integer@1.6.52:
+    resolution: {integrity: sha512-QxD8cf2eVqJOOz63z6JIN9BzvVs/dlySa5HGSBH5xtR8dPteIRQnBxxKqkNTiT6jbDTF6jAfrd4oMcND9RGbQg==}
+    engines: {node: '>=0.6'}
 
   buffer@6.0.3:
     resolution: {integrity: sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==}
@@ -485,6 +495,10 @@ packages:
   mute-stream@2.0.0:
     resolution: {integrity: sha512-WWdIxpyjEn+FhQJQQv9aQAYlHoNVdzIzUySNV1gHUPDSdZJ3yZn7pAAbQcV7B56Mvu881q9FZV+0Vx2xC44VWA==}
     engines: {node: ^18.17.0 || >=20.5.0}
+
+  node-sql-parser@5.3.7:
+    resolution: {integrity: sha512-kWKD/58onPdtgIicQYUipozz18b7AbENQjtOHNysIKenQ/g1KFB9Hqq7JeLSg06Le8+vVrb6a51vFFP3EalHig==}
+    engines: {node: '>=8'}
 
   one-time@1.0.0:
     resolution: {integrity: sha512-5DXOiRKwuSEcQ/l0kGCF6Q3jcADFv5tSmRaJck/OqkVFcOzutB134KRSfF0xDrL39MNnqxbHBbUUcjZIhTgb2g==}
@@ -962,6 +976,8 @@ snapshots:
     dependencies:
       undici-types: 6.19.8
 
+  '@types/pegjs@0.10.6': {}
+
   '@types/phoenix@1.6.5': {}
 
   '@types/retry@0.12.2': {}
@@ -1011,6 +1027,8 @@ snapshots:
   async@3.2.6: {}
 
   base64-js@1.5.1: {}
+
+  big-integer@1.6.52: {}
 
   buffer@6.0.3:
     dependencies:
@@ -1151,6 +1169,11 @@ snapshots:
   ms@2.1.3: {}
 
   mute-stream@2.0.0: {}
+
+  node-sql-parser@5.3.7:
+    dependencies:
+      '@types/pegjs': 0.10.6
+      big-integer: 1.6.52
 
   one-time@1.0.0:
     dependencies:

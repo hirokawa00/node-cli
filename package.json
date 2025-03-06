@@ -2,7 +2,7 @@
   "name": "cli",
   "version": "1.0.0",
   "description": "テスト用のCLIアプリケーション",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "build": "ncc build ./src/index.ts -m -a",
     "start": "env-cmd -f .env.local node --no-warnings dist/index.js"
@@ -26,6 +26,7 @@
     "@types/node": "22.7.6",
     "@types/uuid": "10.0.0",
     "@vercel/ncc": "0.38.2",
+    "node-sql-parser": "^5.3.7",
     "ts-node": "10.9.2",
     "typescript": "5.6.3"
   },
