@@ -42,7 +42,7 @@ fs.readdir(sqlDirectory, (err, files) => {
         return;
       }
 
-      const markdown = generateMarkdown(tableAst);
+      const markdown = generateMarkdown(tableAst, sql);
       markdownContent += markdown + '\n\n';
     } catch (error) {
       console.error(`Parsing error in file ${file}:`, error.message);
@@ -55,11 +55,22 @@ fs.readdir(sqlDirectory, (err, files) => {
 });
 
 // マークダウン形式に変換する関数
-function generateMarkdown(ast) {
+function generateMarkdown(ast, sql) {
   const tableName = ast.table[0].table; // テーブル名の取得
   let markdown = `## ${tableName}\n\n`;
-  markdown += '| カラム名              | データ型       | 制約                 |\n';
-  markdown += '|----------------------|-------------|----------------------|\n';
+
+  // テーブル論理名の抽出
+  let tableLogicName = '';
+  const tableCommentLine = sql.match(/-- テーブル論理名:\s*(.*)/i);
+  if (tableCommentLine) {
+    tableLogicName = tableCommentLine[1].trim();
+  }
+  if (tableLogicName) {
+    markdown += `**テーブル論理名:** ${tableLogicName}\n\n`;
+  }
+
+  markdown += '| カラム名              | データ型       | 制約                 | 論理名    |\n';
+  markdown += '|----------------------|----------------|----------------------|-----------|\n';
 
   // カラム定義の処理
   ast.create_definitions.forEach((def) => {
@@ -97,16 +108,25 @@ function generateMarkdown(ast) {
       constraints.push('PRIMARY KEY');
     }
 
-    markdown += `| ${colName} | ${dataType} | ${constraints.join(', ')} |\n`;
+    // カラム論理名の抽出
+    let columnLogicName = '';
+    const columnCommentLine = sql.match(
+      new RegExp(`-- カラム論理名:\\s*${colName}\\s*:\\s*(.*)`, 'i'),
+    );
+    if (columnCommentLine) {
+      columnLogicName = columnCommentLine[1].trim();
+    }
+
+    markdown += `| ${colName} | ${dataType} | ${constraints.join(', ')} | ${columnLogicName} |\n`;
   });
 
-  // 複合プライマリキーやインデックスの処理
+  // 複合プライマリキーの処理
   if (
     ast.create_definitions.some((def) => def.constraint && def.constraint_type === 'primary key')
   ) {
     markdown += '\n### 複合プライマリキー\n';
-    markdown += '| カラム名         | 制約       |\n';
-    markdown += '|-----------------|-----------|\n';
+    markdown += '| カラム名               | 制約       |\n';
+    markdown += '|-----------------------|-----------|\n';
     ast.create_definitions
       .filter((def) => def.constraint_type === 'primary key')
       .forEach((pk) => {
@@ -116,14 +136,16 @@ function generateMarkdown(ast) {
   }
 
   // インデックスの処理
-  if (ast.indexes) {
+  if (ast.create_definitions.some((def) => def.keyword === 'index')) {
     markdown += '\n### インデックス\n';
     markdown += '| インデックス名   | カラム名                | 制約    |\n';
     markdown += '|------------------|------------------------|--------|\n';
-    ast.indexes.forEach((index) => {
-      const indexColumns = index.index_columns.map((col) => col.column).join(', ');
-      markdown += `| ${index.index} | ${indexColumns} | ${index.unique ? 'UNIQUE' : ''} |\n`;
-    });
+    ast.create_definitions
+      .filter((def) => def.keyword === 'index')
+      .forEach((index) => {
+        const indexColumns = index.index_columns.map((col) => col.column).join(', ');
+        markdown += `| ${index.index} | ${indexColumns} | ${index.unique ? 'UNIQUE' : ''} |\n`;
+      });
   }
 
   return markdown;
